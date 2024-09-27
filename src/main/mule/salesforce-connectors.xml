@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="9859b867-cd4a-4aa3-968e-923468543f76" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<salesforce:sfdc-config name="Salesforce_Config" doc:name="Salesforce Config" doc:id="a6a7a667-fb9a-4281-be5c-d2f835618eeb" >
+		<salesforce:basic-connection username="zeeshan.mohd@prowesssoft.com" password="DADth19@" securityToken="x5K4Cz0caWRjwbfLnaVSfbHz" url="https://login.salesforce.com/services/Soap/u/56.0" />
+	</salesforce:sfdc-config>
+	<flow name="salesforce-connectorsFlow" doc:id="ee948aea-62d6-4b78-a9e3-84ab9c73e4ea" >
+		<http:listener doc:name="Listener" doc:id="93ec8d0e-46a6-4db7-a4bb-e45145f50038" config-ref="HTTP_Listener_config" path="test"/>
+		<ee:transform doc:name="Transform Message" doc:id="1ca50255-dc44-4e5b-9dea-41983b5eb990" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:update doc:name="Update" doc:id="4d896dcb-5d59-43be-a193-0149a713f813" config-ref="Salesforce_Config" type="Account"/>
+		<ee:transform doc:name="Transform Message" doc:id="cd33094a-91e7-4b37-a458-8ba0c32cf468" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-connectorsFlow1" doc:id="7eee9a37-25a9-432c-9fc9-64a88b33af66" >
+		<http:listener doc:name="Listener" doc:id="e64a77cb-1c1c-4eeb-af20-514b7064c9fa" config-ref="HTTP_Listener_config" path="test1"/>
+		<salesforce:query doc:name="Query" doc:id="342b9ad2-193f-48e5-a2ff-487bfc2b36fc" config-ref="Salesforce_Config">
+			<salesforce:salesforce-query ><![CDATA[SELECT FIELDS(ALL) FROM Contact LIMIT 200]]></salesforce:salesforce-query>
+		</salesforce:query>
+		<ee:transform doc:name="Transform Message" doc:id="765be953-22ff-438a-845b-494b7d2d8cb1" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
